@@ -15,15 +15,15 @@ Implemente un **sistema de seguridad** según los requerimientos descritos.
 ### Requerimientos del sistema:
 
 #### No funcionales:
-1. Tener 1 LED para indicar el estatus del sistema de seguridad.
-2. Tener un teclado hexadecimal para ingresar la clave del sistema.
+1. Tener un LED para indicar el estatus del sistema de seguridad (preferiblemente con libreria).
+2. Tener un teclado hexadecimal para ingresar la clave del sistema en dígitos.
 3. Tener un puerto de depuración con el PC (USART2 @256000 baudios).
 4. Tener un display OLED para mostrar eventos del sistema.
 
 #### Funcionales:
 5. El teclado hexadecimal debe recibir la clave en dígitos, que corresponde al documento del estudiante.
-6. Se debe presionar la tecla '#' para verificar la clave, o la tecla '*' para reiniciar el ingreso de dígitos.
-7. El LED debe parpadear a una frecuencia de 4 Hz por 3s en caso de que la clave ingresada sea incorrecta.
-8. El LED debe parpadear a una frecuencia de 0 Hz por 3s en caso de que la clave ingresada sea correcta.
+6. El display debe mostrar los dígitos que se han ingresado para que el usuario valide la clave en tiempo real.
+7. Se debe presionar la tecla '#' para verificar la clave o la tecla '*' para reiniciar la secuencia de dígitos.
+8. El LED debe encender durante 3 segundos, a 4Hz si la clave es incorrecta y a 0Hz si la clave es correcta.
 9. El display OLED debe mostrar "Success" o "Error" según el resultado cuando la clave sea verificada.
-10. Debe enviar mensajes de información por la consola cuando hayan eventos en el sistema.
+10. La consola debe mostrar cuando hayan eventos en el sistema.
