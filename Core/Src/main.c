@@ -63,9 +63,9 @@ char errorMsg[] = "Error\r\n";
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_GPIO_Init(void);
-void MX_USART2_UART_Init(void);
-void MX_I2C1_Init(void);
+static void MX_GPIO_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 uint8_t detectarTecla(uint16_t GPIO_Pin);  // Prototipo de la función detectarTecla
 //void mostrarError(void);  // Prototipo de la función mostrarError
@@ -217,21 +217,19 @@ void verificarClave() {
 
 
 void actualizarDisplay(uint8_t *clave, uint8_t size) {
+    // Mostrar la clave ingresada
+    HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, clave, size, HAL_MAX_DELAY);
+
+    // Si la clave ha sido verificada, mostrar el mensaje de éxito o error
     if (claveVerificada) {
-        // Mostrar mensaje de éxito o error
-        if (size > 0) {
-            HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, clave, size, HAL_MAX_DELAY);
-        }
-        if (clave[0] == successMsg) {
+        if (clave[0] == '#') {
             HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, (uint8_t *)successMsg, sizeof(successMsg) - 1, HAL_MAX_DELAY);
         } else {
             HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, (uint8_t *)errorMsg, sizeof(errorMsg) - 1, HAL_MAX_DELAY);
         }
-    } else {
-        // Mostrar la clave ingresada
-        HAL_I2C_Master_Transmit(&hi2c1, OLED_ADDRESS, clave, size, HAL_MAX_DELAY);
     }
 }
+
 
 
 /* USER CODE END 0 */
@@ -246,6 +244,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
 //HAL_Init();
 //LED_Init(GPIOA, GPIO_PIN_5);
+	huart2.Init.BaudRate = 256000;  // Cambia la velocidad a 256000 baudios
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -278,9 +278,16 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  if (claveVerificada) {
-				 verificarClave();  // Verificar si ya se ingresó toda la clave
-				 claveVerificada = 0;  // Reset de flag para evitar verificar en cada ciclo
+	  while (1) {
+	      // Mensaje de depuración
+	      printf("Estado del sistema: %d\r\n", state);
+
+	      // Añadir otras tareas según sea necesario
+
+	      // Añadir una pequeña espera para evitar sobrecargar el procesador
+	      HAL_Delay(100);
+	  }
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -341,7 +348,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-void MX_I2C1_Init(void)
+static void MX_I2C1_Init(void)
 {
 
   /* USER CODE BEGIN I2C1_Init 0 */
@@ -389,7 +396,7 @@ void MX_I2C1_Init(void)
   * @param None
   * @retval None
   */
-void MX_USART2_UART_Init(void)
+static void MX_USART2_UART_Init(void)
 {
 
   /* USER CODE BEGIN USART2_Init 0 */
@@ -424,13 +431,14 @@ void MX_USART2_UART_Init(void)
   * @param None
   * @retval None
   */
-void MX_GPIO_Init(void)
+static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 /* USER CODE BEGIN MX_GPIO_Init_1 */
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -500,12 +508,11 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
-  while (1)
-  {
+  while (1){
  }
   /* USER CODE END Error_Handler_Debug */
 }
-}
+
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
